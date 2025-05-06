@@ -100,12 +100,14 @@ class Trip(BaseModel):
         return [iou for iou in settled_ious if abs(iou.amount) > 0.01 and iou.paid_by != iou.paid_for]
 
     def describe_settle(self) -> str:
-        ious = self.settle()
         lines = [
             f'🎉 {self.title} 🎉\n',
             f'Receipts: {len(self.receipts)}\n',
         ]
-        ious.sort(key=lambda iou: iou.paid_for.user_name)
+
+        ious = sorted(self.settle(), key=lambda iou: iou.paid_for.user_name)
+        if not ious:
+            return 'No one owes anyone anything yet~!'
         curr_oweing = ious[0].paid_for
         for iou in ious:
             if iou.paid_for != curr_oweing:
