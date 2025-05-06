@@ -189,7 +189,7 @@ async def setup():
         bot.add_handler(PollAnswerHandler(func))
 
     bot.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_text))
-    with open(cert_file) as f:
+    with open(cert_file, 'rb') as f:
         await bot.bot.setWebhook(webhook_url, certificate=f)
 
 async def process_request(request: Request):
