@@ -53,10 +53,13 @@ async def command_intro(update: Update, context: CallbackContext):
         "I'm pretty good at math and keeping track of receipts, especially for end-of-vacation tabulations.",
         "If you've got expenses to split, I've got you covered!",
         "In my spare time, I love chasing down bugs, it's my idea of fun!",
-        "I live in a cozy Raspberry Pi, thanks to my creator, Juxarius.",
+        "I used to live in a cozy Raspberry Pi, thanks to my creator, Juxarius.",
         '\n(ﾉ◕ヮ◕)ﾉ*:･ﾟ✧',
-        '\nIt was there for a while but Jux couldnt get the fan to work, so he had to shut it down before it became a fire hazard.',
-        'But recently he found out that the connector pins were just wrongly inserted!\nSilly Jux ꒰(･‿･)꒱',
+        '\nIt had been there for a while but Jux couldnt get the fan to work, so he had to shut it down before it became a fire hazard.',
+        'But then he found out that the connector pins were just wrongly inserted!\nSilly Jux ꒰(･‿･)꒱',
+        '',
+        'However, it didnt take long before my house got overloaded or something and I was dead for a while.',
+        'Nevertheless, Jux kept searching for a new home for me and now I live in the AWS cloud',
         "\nAnyways, feel free to reach out whenever you need some help. I'm here for you!",
     ]
     await update.message.chat.send_message(' '.join(introduction))
