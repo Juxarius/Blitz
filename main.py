@@ -16,11 +16,13 @@ async def process_request() -> Response
 '''
 @asynccontextmanager
 async def lifespan(_: FastAPI):
+    info('Starting Blitz...', command='webserver')
     await app.setup()
     async with app.bot:
         await app.bot.start()
         yield
         await app.bot.stop()
+    info('Blitz stopped...', command='webserver')
 
 # Initialize FastAPI app (similar to Flask)
 webserver = FastAPI(lifespan=lifespan)
@@ -38,13 +40,9 @@ async def process_request(request: Request):
 webserver.add_api_route(app.endpoint, process_request, methods=['POST'])
 
 if __name__ == '__main__':
-    info("Starting Blitz uvicorn server...", command='uvicorn')
-    try:
-        uvicorn.run(
-            "main:webserver",
-            host='127.0.0.1',
-            port=get_config("port"),
-            reload=False,
-        )
-    finally:
-        info('Blitz uvicorn server stopped...', command='uvicorn')
+    uvicorn.run(
+        "main:webserver",
+        host='127.0.0.1',
+        port=get_config("port"),
+        reload=False,
+    )
