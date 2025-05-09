@@ -28,7 +28,7 @@ webserver = FastAPI(lifespan=lifespan)
 @webserver.get(f'{app.endpoint}/test')
 async def test_webapp(request: Request) -> Response:
     # Test with below urls
-    # https://localhost:80/webhook/blitz/test
+    # https://localhost:13337/webhook/blitz/test
     info(f"{request.url} from {request.client.host}:{request.client.port}")
     return Response("All is good!", status_code=HTTPStatus.OK)
 
@@ -43,5 +43,5 @@ if __name__ == '__main__':
         "main:webserver",
         host='127.0.0.1',
         port=get_config("port"),
-        reload=True,
+        reload=False,
     )
