@@ -4,11 +4,11 @@ from telegram.ext._contexttypes import ContextTypes
 from fastapi import Request, Response
 import json
 
-from .utils import get_config, cert_file
+from .utils import debug, info, warning, error
+from .utils import up_id
+from .utils import get_config
 from . import controllers
 from . import nlp
-
-DEBUG_MODE = True
 
 endpoint = get_config('endpoint')
 webhook_url = f'https://{get_config("ip")}{endpoint}'
@@ -17,7 +17,7 @@ bot = controllers.app
 async def command_start(update: Update, _: ContextTypes.DEFAULT_TYPE):
     start_msg_lines = [
         'Hello! My name is Blitz~',
-        'Im a bill split bot who can help you to log all your expenses for a trip'
+        'Im a bill split bot who can help you to log all your expenses for a trip',
         'and make it easy to settle at the end of the trip',
         '',
         'You can type /help to see my commands!',
@@ -30,6 +30,7 @@ async def command_start(update: Update, _: ContextTypes.DEFAULT_TYPE):
         '',
         'I gotta be an admin to hear non-command messages though, so remember to promote me!',
     ]
+    info(up_id(update), command='start')
     await update.message.chat.send_message('\n'.join(start_msg_lines))
 
 async def command_help(update: Update, context: CallbackContext):
@@ -45,6 +46,7 @@ async def command_help(update: Update, context: CallbackContext):
         '/divide RATE - Divide all expenses in this trip by a certain amount, for currency conversion',
         '/multiply RATE - Multiple all expenses in this trip by a certain amount, for currency conversion',
     ]
+    info(up_id(update), command='help')
     await update.message.chat.send_message('\n'.join(help_lines))
 
 async def command_intro(update: Update, context: CallbackContext):
@@ -62,79 +64,99 @@ async def command_intro(update: Update, context: CallbackContext):
         'Nevertheless, Jux kept searching for a new home for me and now I live in the AWS cloud',
         "\nAnyways, feel free to reach out whenever you need some help. I'm here for you!",
     ]
+    info(up_id(update), command='intro')
     await update.message.chat.send_message(' '.join(introduction))
 
 async def command_trip(update: Update, context: CallbackContext):
     split_msg = update.message.text.split()
     if len(split_msg) < 2:
+        info(f"{up_id(update)} Missing trip name", command='trip', payload=update.message.text)
         await update.message.reply_text(f'Did you miss out the name of your trip?\n/trip TRIP_NAME')
         return
     context.user_data['trip_name'] = ' '.join(split_msg[1:])
+    info(up_id(update), command='trip')
     await controllers.new_trip(update, context)
 
 async def command_bill(update: Update, context: CallbackContext):
     split_msg = update.message.text.split()
     if len(split_msg) < 3:
+        info(f"{up_id(update)} Missing amount or description", command='bill', payload=update.message.text)
         await update.message.reply_text(f'You gotta put it in this format:\n/bill AMOUNT DESC')
         return
     try:
         amount_str = split_msg[1]
         context.user_data['amount'] = float(amount_str)
     except ValueError as e:
+        info(f"{up_id(update)} Invalid amount", command='bill', payload=update.message.text)
         await update.message.reply_text(f'I cant translate {amount_str} to a number!')
         return
     context.user_data.update({
         'amount': amount_str,
         'description': ''.join(split_msg[2:]),
     })
+    info(up_id(update), command='bill')
     await controllers.new_receipt(update, context)
 
 async def command_divide(update: Update, context: CallbackContext):
     split_msg = update.message.text.split()
     if len(split_msg) < 2:
+        info(f"{up_id(update)} Missing rate", command='divide', payload=update.message.text)
         await update.message.reply_text(f'You need to put the factor to divide by, in this format:\n/divide RATE')
         return
     try:
         context.user_data['rate'] = 1 / float(split_msg[1])
     except ValueError as e:
+        info(f"{up_id(update)} Rate not a number", command='divide', payload=update.message.text)
         await update.message.reply_text(f'I cant translate {split_msg[1]} to a number!')
         return
+    info(up_id(update), command='divide')
     await controllers.multiply(update, context)
 
 async def command_multiply(update: Update, context: CallbackContext):
     split_msg = update.message.text.split()
     if len(split_msg) < 2:
+        info(f"{up_id(update)} Missing rate", command='multiply', payload=update.message.text)
         await update.message.reply_text(f'You need to put the factor to multiply by, in this format:\n/multiply RATE')
         return
     try:
         context.user_data['rate'] = float(split_msg[1])
     except ValueError as e:
+        info(f"{up_id(update)} Rate not a number", command='multiply', payload=update.message.text)
         await update.message.reply_text(f'I cant translate {split_msg[1]} to a number!')
         return
+    info(up_id(update), command='multiply')
     await controllers.multiply(update, context)
 
 async def poll_complete_bill(update: Update, context: CallbackContext):
+    info(up_id(update), command='poll-complete-bill')
     await controllers.complete_receipt(update, context)
 
 async def command_settle(update: Update, context: CallbackContext):
+    info(up_id(update), command='settle')
     await controllers.settle(update, context)
 
 async def command_show_receipts(update: Update, context: CallbackContext):
+    info(up_id(update), command='show-receipts')
     await controllers.show_receipts(update, context)
 
 async def command_show_trip(update: Update, context: CallbackContext):
+    info(up_id(update), command='show-trip')
     await controllers.show_trip(update, context)
 
 async def command_explain(update: Update, context: CallbackContext):
+    info(up_id(update), command='explain')
     await controllers.explain(update, context)
 
 async def command_all_my_trips(update: Update, context: CallbackContext):
+    info(up_id(update), command='all-my-trips')
     await controllers.all_my_trips(update, context)
 
 async def callback_trip_join(update: Update, context: CallbackContext):
+    info(up_id(update), command='callback-trip-join')
     await controllers.join_trip(update, context)
 
 async def callback_trip_browse(update: Update, context: CallbackContext):
+    info(up_id(update), command='callback-trip-browse')
     await controllers.change_trip(update, context)
 
 command_map = {
@@ -163,6 +185,7 @@ async def handle_text(update: Update, context: CallbackContext):
         return
     command = nlp.determine_command(msg)
     if command is None:
+        info(f"{up_id(update)} Failed to determine command", payload=update.message.text)
         await update.message.reply_text(f'Sorry, I uhh... dont quite understand you ٭(•﹏•)٭')
         return
     parsing_required = {
@@ -170,12 +193,15 @@ async def handle_text(update: Update, context: CallbackContext):
         'bill': (nlp.parse_bill, controllers.new_receipt),
     }
     if command not in parsing_required:
+        debug(f"{up_id(update)} No parsing required", command=command, payload=update.message.text)
         await command_map[command](update, context)
         return
     try:
         parsing_required[command][0](msg, context)
+        debug(f"{up_id(update)} Parsing succeeded", command=command, payload=update.message.text)
         await parsing_required[command][1](update, context)
     except ValueError as e:
+        info(f"{up_id(update)} Parsing failed", command=command, payload=update.message.text)
         await update.message.reply_text(str(e))
 
 async def setup():
@@ -197,7 +223,7 @@ async def setup():
 
 async def process_request(request: Request):
     req = await request.json()
-    if DEBUG_MODE: print(json.dumps(req, indent=2))
+    debug(json.dumps(req))
     update = Update.de_json(req, bot.bot)
     await bot.process_update(update)
     return Response(status_code=200)

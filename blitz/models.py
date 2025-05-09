@@ -1,7 +1,9 @@
 from pydantic_mongo import AbstractRepository, PydanticObjectId
 from pydantic import BaseModel, Field
+from pymongo import MongoClient
 from typing import Optional, List, Self
 from datetime import datetime, timedelta
+import logging
 
 class Person(BaseModel):
     user_id: int
@@ -161,12 +163,25 @@ class States(AbstractRepository[State]):
     class Meta:
         collection_name = 'states'
 
-class Log(BaseModel):
-    id: Optional[PydanticObjectId] = None
-    log_level: int
-    timestamp: datetime
-    message: str
+class MongoHandler(logging.Handler):
+    def __init__(self, mongo_uri: str, db_name: str, collection_name: str):
+        super().__init__()
+        self.client = MongoClient(mongo_uri)
+        self.collection = self.client[db_name][collection_name]
 
-class Logs(AbstractRepository[Log]):
-    class Meta:
-        collection_name = 'logs'
+    def emit(self, record: logging.LogRecord) -> None:
+        log_entry = self.format_record(record)
+        try:
+            self.collection.insert_one(log_entry)
+        except Exception as e:
+            print(f"Failed to log to MongoDB: {e}")
+
+    def format_record(self, record: logging.LogRecord) -> dict:
+        return {
+            "timestamp": datetime.now(),
+            "level": record.levelname,
+            "message": record.getMessage(),
+            "command": getattr(record,"command", None),
+            "payload": getattr(record,"payload", None),
+        }
+

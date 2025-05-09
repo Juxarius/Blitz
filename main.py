@@ -1,5 +1,6 @@
 import blitz.app as app
 from blitz.utils import get_config
+from blitz.utils import info
 
 from contextlib import asynccontextmanager
 from http import HTTPStatus
@@ -24,17 +25,20 @@ async def lifespan(_: FastAPI):
 # Initialize FastAPI app (similar to Flask)
 webserver = FastAPI(lifespan=lifespan)
 
-@webserver.get(f'{get_config("endpoint")}/test')
+@webserver.get(f'{app.endpoint}/test')
 async def test_webapp(request: Request) -> Response:
     # Test with below urls
     # https://localhost:80/webhook/blitz/test
+    info(f"{request.url} from {request.client.host}:{request.client.port}")
     return Response("All is good!", status_code=HTTPStatus.OK)
 
 async def process_request(request: Request):
+    info(f"{request.url} from {request.client.host}:{request.client.port}")
     return await app.process_request(request)
 webserver.add_api_route(app.endpoint, process_request, methods=['POST'])
 
 if __name__ == '__main__':
+    info("Starting Blitz uvicorn server...")
     uvicorn.run(
         "main:webserver",
         host='127.0.0.1',
