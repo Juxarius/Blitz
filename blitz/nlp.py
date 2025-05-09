@@ -21,7 +21,7 @@ def match_word_logic(msg: str, logic: Sequence[Sequence[Sequence[str]]]) -> bool
     return any(and_or_logic(msg, inner_logic) for inner_logic in logic)
 
 ATTENTION_LOGIC = (
-    (('hey', 'yo', 'hello', 'hi', 'sup'), ('blitz',),),
+    (('hellu', 'hey', 'yo', 'hello', 'hi', 'sup'), ('blitz',),),
     (('so blitz', 'blitz,'),),
 )
 def is_calling_blitz(msg: str) -> bool:
