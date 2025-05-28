@@ -30,7 +30,7 @@ async def command_start(update: Update, _: ContextTypes.DEFAULT_TYPE):
         '',
         'I gotta be an admin to hear non-command messages though, so remember to promote me!',
     ]
-    info(up_id(update), command='start')
+    info(up_id(update))
     await update.message.chat.send_message('\n'.join(start_msg_lines))
 
 async def command_help(update: Update, context: CallbackContext):
@@ -46,7 +46,7 @@ async def command_help(update: Update, context: CallbackContext):
         '/divide RATE - Divide all expenses in this trip by a certain amount, for currency conversion',
         '/multiply RATE - Multiple all expenses in this trip by a certain amount, for currency conversion',
     ]
-    info(up_id(update), command='help')
+    info(up_id(update))
     await update.message.chat.send_message('\n'.join(help_lines))
 
 async def command_intro(update: Update, context: CallbackContext):
@@ -64,67 +64,67 @@ async def command_intro(update: Update, context: CallbackContext):
         'Nevertheless, Jux kept searching for a new home for me and now I live in the AWS cloud',
         "\nAnyways, feel free to reach out whenever you need some help. I'm here for you!",
     ]
-    info(up_id(update), command='intro')
+    info(up_id(update))
     await update.message.chat.send_message(' '.join(introduction))
 
 async def command_trip(update: Update, context: CallbackContext):
     split_msg = update.message.text.split()
     if len(split_msg) < 2:
-        info(f"{up_id(update)} Missing trip name", command='trip', payload=update.message.text)
+        info(f"{up_id(update)} | Missing trip name '{update.message.text}'")
         await update.message.reply_text(f'Did you miss out the name of your trip?\n/trip TRIP_NAME')
         return
     context.user_data['trip_name'] = ' '.join(split_msg[1:])
-    info(up_id(update), command='trip')
+    info(up_id(update))
     await controllers.new_trip(update, context)
 
 async def command_bill(update: Update, context: CallbackContext):
     split_msg = update.message.text.split()
     if len(split_msg) < 3:
-        info(f"{up_id(update)} Missing amount or description", command='bill', payload=update.message.text)
+        info(f"{up_id(update)} | Missing amount or description")
         await update.message.reply_text(f'You gotta put it in this format:\n/bill AMOUNT DESC')
         return
     amount_str, description = split_msg[1], ' '.join(split_msg[2:])
     try:
         amount = float(amount_str)
     except ValueError as e:
-        info(f"{up_id(update)} Invalid amount", command='bill', payload=update.message.text)
+        info(f"{up_id(update)} | Amount is not a number")
         await update.message.reply_text(f'I cant translate {amount_str} to a number!')
         return
     context.user_data.update({
         'amount': amount,
         'description': description,
     })
-    info(up_id(update), command='bill')
+    info(up_id(update))
     await controllers.new_receipt(update, context)
 
 async def command_divide(update: Update, context: CallbackContext):
     split_msg = update.message.text.split()
     if len(split_msg) < 2:
-        info(f"{up_id(update)} Missing rate", command='divide', payload=update.message.text)
+        info(f"{up_id(update)} | Missing rate")
         await update.message.reply_text(f'You need to put the factor to divide by, in this format:\n/divide RATE')
         return
     try:
         context.user_data['rate'] = 1 / float(split_msg[1])
     except ValueError as e:
-        info(f"{up_id(update)} Rate not a number", command='divide', payload=update.message.text)
+        info(f"{up_id(update)} | Rate not a number")
         await update.message.reply_text(f'I cant translate {split_msg[1]} to a number!')
         return
-    info(up_id(update), command='divide')
+    info(up_id(update))
     await controllers.multiply(update, context)
 
 async def command_multiply(update: Update, context: CallbackContext):
     split_msg = update.message.text.split()
     if len(split_msg) < 2:
-        info(f"{up_id(update)} Missing rate", command='multiply', payload=update.message.text)
+        info(f"{up_id(update)} | Missing rate")
         await update.message.reply_text(f'You need to put the factor to multiply by, in this format:\n/multiply RATE')
         return
     try:
         context.user_data['rate'] = float(split_msg[1])
     except ValueError as e:
-        info(f"{up_id(update)} Rate not a number", command='multiply', payload=update.message.text)
+        info(f"{up_id(update)} | Rate not a number")
         await update.message.reply_text(f'I cant translate {split_msg[1]} to a number!')
         return
-    info(up_id(update), command='multiply')
+    info(up_id(update))
     await controllers.multiply(update, context)
 
 async def poll_complete_bill(update: Update, context: CallbackContext):

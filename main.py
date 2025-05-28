@@ -16,13 +16,13 @@ async def process_request() -> Response
 '''
 @asynccontextmanager
 async def lifespan(_: FastAPI):
-    info('Starting Blitz...', command='webserver')
+    info('Starting Blitz...')
     await app.setup()
     async with app.bot:
         await app.bot.start()
         yield
         await app.bot.stop()
-    info('Blitz stopped...', command='webserver')
+    info('Blitz stopped...')
 
 # Initialize FastAPI app (similar to Flask)
 webserver = FastAPI(lifespan=lifespan)
