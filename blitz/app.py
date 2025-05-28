@@ -1,5 +1,5 @@
 from telegram import Update
-from telegram.ext import CommandHandler, MessageHandler, PollAnswerHandler, CallbackQueryHandler, CallbackContext, filters
+from telegram.ext import CommandHandler, MessageHandler, PollAnswerHandler, CallbackQueryHandler, CallbackContext, filters, PollHandler
 from telegram.ext._contexttypes import ContextTypes
 from fastapi import Request, Response
 import json
@@ -41,7 +41,7 @@ async def command_help(update: Update, context: CallbackContext):
         '/bill AMOUNT DESC - Record a receipt that you paid for, I will later ask who you paid for',
         '/settle - Get the final amout everyone owes each other',
         '/receipts - Shows all receipts and breakdown',
-        '/show - Shows the currnet trip you are on, you can reselect older trips',
+        '/show - Shows the current trip you are on, you can reselect older trips',
         '/intro - Tell you more about myself!',
         '/divide RATE - Divide all expenses in this trip by a certain amount, for currency conversion',
         '/multiply RATE - Multiple all expenses in this trip by a certain amount, for currency conversion',
@@ -128,6 +128,7 @@ async def command_multiply(update: Update, context: CallbackContext):
     await controllers.multiply(update, context)
 
 async def poll_complete_bill(update: Update, context: CallbackContext):
+    if not update.poll_answer.option_ids: return
     info(up_id(update) + ' | poll_complete_bill')
     await controllers.complete_receipt(update, context)
 
@@ -215,7 +216,7 @@ async def setup():
         poll_complete_bill,
     ]
     for func in poll_handlers:
-        bot.add_handler(PollAnswerHandler(func))
+        bot.add_handler(PollHandler(func))
 
     bot.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_text))
     # Do not submit certificate if you are using https already
