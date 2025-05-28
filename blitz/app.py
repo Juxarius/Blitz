@@ -83,16 +83,16 @@ async def command_bill(update: Update, context: CallbackContext):
         info(f"{up_id(update)} Missing amount or description", command='bill', payload=update.message.text)
         await update.message.reply_text(f'You gotta put it in this format:\n/bill AMOUNT DESC')
         return
+    amount_str, description = split_msg[1], ' '.join(split_msg[2:])
     try:
-        amount_str = split_msg[1]
-        context.user_data['amount'] = float(amount_str)
+        amount = float(amount_str)
     except ValueError as e:
         info(f"{up_id(update)} Invalid amount", command='bill', payload=update.message.text)
         await update.message.reply_text(f'I cant translate {amount_str} to a number!')
         return
     context.user_data.update({
-        'amount': amount_str,
-        'description': ''.join(split_msg[2:]),
+        'amount': amount,
+        'description': description,
     })
     info(up_id(update), command='bill')
     await controllers.new_receipt(update, context)
