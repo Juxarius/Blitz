@@ -163,7 +163,7 @@ async def complete_receipt(update: Update, context: CallbackContext):
         to_add = [state.data['options'][opt_no-2] for opt_no in poll.option_ids]
         paid_for = [Person(user_id=uid, user_name=username) for uid, username in to_add]
     if not paid_for:
-        await bot.send_message(state.data['chat_id'], 'You must select at least one person to pay for, there is no one you are paying for!')
+        await bot.send_message(state.data['chat_id'], 'You are not paying for anyone, please retract vote and retry!')
         return
     trip.receipts.append(Receipt(
         paid_by=Person(user_id=state.data['paid_by'][0], user_name=state.data['paid_by'][1]),
