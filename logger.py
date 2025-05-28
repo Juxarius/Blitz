@@ -1,5 +1,6 @@
 import logging
 from pathlib import Path
+import datetime as dt
 
 from config import get_config
 
@@ -10,7 +11,7 @@ log_file = log_dir / "blitz.log"
 
 # need to rotate logs, if file already exists, rename it with a timestamp then create a new file
 if log_file.exists():
-    log_file.rename(log_dir / f"blitz-{log_file.stat().st_mtime}.log")
+    log_file.rename(log_dir / f"blitz-{dt.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.log")
     log_file = log_dir / "blitz.log"
 
 logger = logging.getLogger("blitz")
