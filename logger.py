@@ -1,7 +1,7 @@
 import logging
 from pathlib import Path
 
-from blitz.utils import get_config
+from config import get_config
 
 log_dir = Path(__file__).parent / "logs"
 log_dir.mkdir(exist_ok=True)
