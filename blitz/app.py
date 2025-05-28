@@ -6,7 +6,7 @@ import json
 
 from logger import debug, info, warning, error
 from .utils import up_id
-from .utils import get_config
+from config import get_config
 from . import controllers
 from . import nlp
 
