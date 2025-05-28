@@ -4,7 +4,7 @@ from telegram.ext._contexttypes import ContextTypes
 from fastapi import Request, Response
 import json
 
-from .utils import debug, info, warning, error
+from logger import debug, info, warning, error
 from .utils import up_id
 from .utils import get_config
 from . import controllers
