@@ -5,7 +5,7 @@ from pymongo import MongoClient
 from bson import ObjectId
 from typing import Optional
 
-from .utils import get_config
+from config import get_config
 from .models import Trips, Trip, Person, Receipt, State, States
 
 db = MongoClient(f"mongodb://{get_config('mongoDbHostname')}:{get_config('mongoDbPort')}")['blitz']

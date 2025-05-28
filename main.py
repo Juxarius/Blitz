@@ -1,6 +1,6 @@
 import blitz.app as app
-from blitz.utils import get_config
-from blitz.utils import info
+from config import get_config
+from logger import info
 
 from contextlib import asynccontextmanager
 from http import HTTPStatus
