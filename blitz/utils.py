@@ -36,6 +36,11 @@ warning = lambda msg, command=None, payload=None: log(logging.WARNING, msg, comm
 error = lambda msg, command=None, payload=None: log(logging.ERROR, msg, command, payload)
 
 def update_identifier(update: Update) -> str:
-    return f"{update.message.chat.full_name} ({update.message.chat.id})"
+    if update.message is not None:
+            return f"{update.message.chat.full_name} ({update.message.chat.id})"
+    elif update.callback_query is not None:
+        return f"{update.callback_query.message.chat.full_name} ({update.callback_query.message.chat.id})"
+    else:
+        return "Unknown"
 
 up_id = update_identifier
