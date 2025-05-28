@@ -1,5 +1,5 @@
 from telegram import Update
-from telegram.ext import CommandHandler, MessageHandler, PollAnswerHandler, CallbackQueryHandler, CallbackContext, filters, PollHandler
+from telegram.ext import CommandHandler, MessageHandler, PollAnswerHandler, CallbackQueryHandler, CallbackContext, filters
 from telegram.ext._contexttypes import ContextTypes
 from fastapi import Request, Response
 import json
@@ -216,7 +216,7 @@ async def setup():
         poll_complete_bill,
     ]
     for func in poll_handlers:
-        bot.add_handler(PollHandler(func))
+        bot.add_handler(PollAnswerHandler(func))
 
     bot.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_text))
     # Do not submit certificate if you are using https already
