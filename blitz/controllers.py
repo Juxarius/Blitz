@@ -6,6 +6,7 @@ from bson import ObjectId
 from typing import Optional
 
 from config import get_config
+from logger import debug, info, warning, error
 from .models import Trips, Trip, Person, Receipt, State, States
 
 db = MongoClient(f"mongodb://{get_config('mongoDbHostname')}:{get_config('mongoDbPort')}")['blitz']
@@ -25,7 +26,9 @@ bot = app.bot
 
 def get_last_trip(chat_id: int) -> Optional[Trip|None]:
     chat_trips = list(TRIPS.find_by({'chat_id': chat_id}))
-    if len(chat_trips) < 1: return None
+    if len(chat_trips) < 1:
+        info(f'No trips found for chat {chat_id}')
+        return None
     return sorted(chat_trips, key=lambda trip: trip.last_referenced)[-1]
 
 async def new_trip(update: Update, context: CallbackContext) -> None:
@@ -48,9 +51,14 @@ async def new_trip(update: Update, context: CallbackContext) -> None:
 async def join_trip(update: Update, context: CallbackContext) -> None:
     # Returns the list of registered users
     q = update.callback_query
-    trip: Trip = TRIPS.find_one_by_id(ObjectId(q.data.replace('trip_join', '')))
+    trip_id = q.data.replace('trip_join', '')
+    trip: Trip = TRIPS.find_one_by_id(ObjectId(trip_id))
+    if trip is None:
+        error(f'No trip found for id {trip_id}')
+        return
     person = Person(user_id=q.from_user.id, user_name=q.from_user.username)
     if not trip.add_person(person):
+        info(f'User {person.user_name} already in trip {trip.title}')
         return
     TRIPS.save(trip)
     await bot.edit_message_text(

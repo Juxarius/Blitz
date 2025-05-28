@@ -128,35 +128,35 @@ async def command_multiply(update: Update, context: CallbackContext):
     await controllers.multiply(update, context)
 
 async def poll_complete_bill(update: Update, context: CallbackContext):
-    info(up_id(update), command='poll-complete-bill')
+    info(up_id(update) + ' | poll_complete_bill')
     await controllers.complete_receipt(update, context)
 
 async def command_settle(update: Update, context: CallbackContext):
-    info(up_id(update), command='settle')
+    info(up_id(update))
     await controllers.settle(update, context)
 
 async def command_show_receipts(update: Update, context: CallbackContext):
-    info(up_id(update), command='show-receipts')
+    info(up_id(update))
     await controllers.show_receipts(update, context)
 
 async def command_show_trip(update: Update, context: CallbackContext):
-    info(up_id(update), command='show-trip')
+    info(up_id(update))
     await controllers.show_trip(update, context)
 
 async def command_explain(update: Update, context: CallbackContext):
-    info(up_id(update), command='explain')
+    info(up_id(update))
     await controllers.explain(update, context)
 
 async def command_all_my_trips(update: Update, context: CallbackContext):
-    info(up_id(update), command='all-my-trips')
+    info(up_id(update))
     await controllers.all_my_trips(update, context)
 
 async def callback_trip_join(update: Update, context: CallbackContext):
-    info(up_id(update), command='callback-trip-join')
+    info(f'{up_id(update)} | callback_trip_join: {update.callback_query.data}')
     await controllers.join_trip(update, context)
 
 async def callback_trip_browse(update: Update, context: CallbackContext):
-    info(up_id(update), command='callback-trip-browse')
+    info(f'{up_id(update)} | callback_trip_browse: {update.callback_query.data}')
     await controllers.change_trip(update, context)
 
 command_map = {
@@ -185,7 +185,7 @@ async def handle_text(update: Update, context: CallbackContext):
         return
     command = nlp.determine_command(msg)
     if command is None:
-        info(f"{up_id(update)} Failed to determine command", payload=update.message.text)
+        info(f"{up_id(update)} | Failed to determine command")
         await update.message.reply_text(f'Sorry, I uhh... dont quite understand you ٭(•﹏•)٭')
         return
     parsing_required = {
@@ -193,15 +193,15 @@ async def handle_text(update: Update, context: CallbackContext):
         'bill': (nlp.parse_bill, controllers.new_receipt),
     }
     if command not in parsing_required:
-        debug(f"{up_id(update)} No parsing required", command=command, payload=update.message.text)
+        info(f"{up_id(update)} | Determined command '{command}', no parsing required")
         await command_map[command](update, context)
         return
     try:
         parsing_required[command][0](msg, context)
-        debug(f"{up_id(update)} Parsing succeeded", command=command, payload=update.message.text)
+        info(f"{up_id(update)} | Determined command '{command}', parsing succeeded")
         await parsing_required[command][1](update, context)
     except ValueError as e:
-        info(f"{up_id(update)} Parsing failed", command=command, payload=update.message.text)
+        info(f"{up_id(update)} | Determined command '{command}', parsing failed")
         await update.message.reply_text(str(e))
 
 async def setup():
