@@ -1,8 +1,7 @@
 import logging
 from pathlib import Path
 import datetime as dt
-
-from config import get_config
+import os
 
 log_dir = Path(__file__).parent / "logs"
 log_dir.mkdir(exist_ok=True)
@@ -17,7 +16,7 @@ if log_file.exists():
 logger = logging.getLogger("blitz")
 logger.setLevel(logging.DEBUG)
 handler = logging.FileHandler(log_file, 'a', 'utf-8')
-handler.setLevel(logging.getLevelNamesMapping().get(get_config("logLevel"), logging.INFO))
+handler.setLevel(logging.getLevelNamesMapping().get(os.environ.get("LOG_LEVEL", "INFO"), logging.INFO))
 handler.setFormatter(logging.Formatter("[%(asctime)s] %(levelname)s - %(message)s"))
 logger.addHandler(handler)
 

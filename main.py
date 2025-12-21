@@ -1,11 +1,15 @@
+from dotenv import load_dotenv
+load_dotenv()
+
 import blitz.app as app
-from config import get_config
 from logger import info
 
+import os
 from contextlib import asynccontextmanager
 from http import HTTPStatus
 from fastapi import FastAPI, Request, Response
 import uvicorn
+
 
 '''
 Every app in APPS must have
@@ -43,6 +47,6 @@ if __name__ == '__main__':
     uvicorn.run(
         "main:webserver",
         host='127.0.0.1',
-        port=get_config("port"),
+        port=int(os.environ.get('PORT', 13337)),
         reload=False,
     )

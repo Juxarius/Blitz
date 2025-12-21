@@ -3,15 +3,16 @@ from telegram.ext import CommandHandler, MessageHandler, PollAnswerHandler, Call
 from telegram.ext._contexttypes import ContextTypes
 from fastapi import Request, Response
 import json
+import os
 
 from logger import debug, info, warning, error
 from .utils import up_id
-from config import get_config
 from . import controllers
 from . import nlp
 
-endpoint = get_config('endpoint')
-webhook_url = f'https://{get_config("ip")}{endpoint}'
+ip = os.environ.get('IP', 'localhost')
+endpoint = os.environ.get('ENDPOINT', '/webhook/blitz')
+webhook_url = f'https://{ip}{endpoint}'
 bot = controllers.app
 
 async def command_start(update: Update, _: ContextTypes.DEFAULT_TYPE):

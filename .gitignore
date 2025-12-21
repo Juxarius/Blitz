@@ -4,6 +4,7 @@
 
 dev_notes.txt
 config.json
+.env
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

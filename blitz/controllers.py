@@ -4,17 +4,18 @@ from telegram.ext import CallbackContext, Application
 from pymongo import MongoClient
 from bson import ObjectId
 from typing import Optional
+import os
 
-from config import get_config
 from logger import debug, info, warning, error
 from .models import Trips, Trip, Person, Receipt, State, States
 
-db_info = get_config('mongoDb')
-db = MongoClient(f"mongodb://{db_info['username']}:{db_info['password']}@{db_info['hostname']}:{db_info['port']}")['blitz']
+mongo_cred = f"{os.environ['MONGO_DB_USER']}:{os.environ['MONGO_DB_PASSWORD']}"
+mongo_endpoint = f"{os.environ['MONGO_DB_HOSTNAME']}:{os.environ['MONGO_DB_PORT']}"
+db = MongoClient(f"mongodb://{mongo_cred}@{mongo_endpoint}")['blitz']
 TRIPS = Trips(database=db)
 STATES = States(database=db)
 
-TOKEN = get_config('token')
+TOKEN = os.environ['TOKEN']
 app = (
     Application.builder()
     .updater(None)
@@ -205,23 +206,3 @@ async def multiply(update: Update, context: CallbackContext):
 
 async def explain(update: Update, context: CallbackContext):
     pass
-
-def test_case_1():
-    db_details = get_config("mongodbDetails")
-    db = MongoClient(f"mongodb://{db_details['hostname']}:{db_details['port']}")
-
-    trips = Trips(database=db['blitz'])
-    p1 = Person(user_id=1, user_name="Juxarius")
-    p2 = Person(user_id=2, user_name="Chingz")
-    p3 = Person(user_id=3, user_name="Capoo")
-    t1 = Trip(chat_id=23156, title="Bhutan Trip 2024", created_by=p1, attendees=[p1, p2, p3])
-
-    r1 = Receipt(paid_by=p1, paid_for=[p1, p2, p3], amount=36, description="Dinner")
-    r2 = Receipt(paid_by=p2, paid_for=[p1, p2], amount=20, description="Soft Toy")
-    t1.receipts.extend([r1, r2])
-    print(t1.settle())
-
-    trips.save(t1)
-
-if __name__ == '__main__':
-    test_case_1()
