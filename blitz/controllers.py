@@ -9,7 +9,8 @@ from config import get_config
 from logger import debug, info, warning, error
 from .models import Trips, Trip, Person, Receipt, State, States
 
-db = MongoClient(f"mongodb://{get_config('mongoDbHostname')}:{get_config('mongoDbPort')}")['blitz']
+db_info = get_config('mongoDb')
+db = MongoClient(f"mongodb://{db_info['username']}:{db_info['password']}@{db_info['hostname']}:{db_info['port']}")['blitz']
 TRIPS = Trips(database=db)
 STATES = States(database=db)
 
